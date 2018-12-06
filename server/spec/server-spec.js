@@ -16,33 +16,32 @@ describe('Persistent Node Chat Server', function () {
     });
     dbConnection.connect(function (error) {
       if (error) {
-        console.log('error connecting to db', error);
+        console.log('error connecting to db');
       } else {
         console.log('success connected to db');
       }
     });
 
-    // dbConnection.query('SET FOREIGN_KEY_CHECKS = 0;');
-    var tablename = ['users', 'chatroom', 'messages']; // TODO: fill this out
-    var fn = function (done) {
+    dbConnection.query('SET FOREIGN_KEY_CHECKS = 0;', function (error, results) {
+      var tablename = ['users', 'chatroom', 'messages']; // TODO: fill this out
       tablename.forEach(function (table) {
         dbConnection.query('truncate ' + table, function (err, result) {
           if (err) {
-            console.log('error clearing db', err)
+            console.log('error clearing db')
           } else {
             if (table === 'messages') {
               console.log('successfully cleared db');
-              done();
+              dbConnection.query('SET FOREIGN_KEY_CHECKS = 1;', done);
+              //done();
             }
           }
         });
       });
-    }
-    fn(done)
-    // dbConnection.query('SET FOREIGN_KEY_CHECKS = 1;', done);
-    /* Empty the db table before each test so that multiple tests
-     * (or repeated runs of the tests) won't screw each other up: */
-    //dbConnection.query('truncate ' + tablename, done);
+
+      /* Empty the db table before each test so that multiple tests
+       * (or repeated runs of the tests) won't screw each other up: */
+      //dbConnection.query('truncate ' + tablename, done);
+    });
   });
 
   afterEach(function () {
@@ -56,7 +55,7 @@ describe('Persistent Node Chat Server', function () {
       uri: 'http://127.0.0.1:3000/classes/users',
       json: { username: 'Valjean' }
     }, function () {
-      console.log('we were making it to the 2nd callback')
+      console.log('Inside message POST request')
       // Post a message to the node chat server:
       request({
         method: 'POST',
@@ -67,13 +66,13 @@ describe('Persistent Node Chat Server', function () {
           roomname: 'Hello'
         }
       }, function () {
-        console.log('we were making it to the 3rd callback')
+        console.log('POST requests complete, checking db for data')
         // Now if we look in the database, we should find the
         // posted message there.
 
         // TODO: You might have to change this test to get all the data from
         // your message table, since this is schema-dependent.
-        var queryString = 'SELECT * FROM messages';  // WAS MESSAGES!!!!
+        var queryString = 'SELECT * FROM mesages';  // WAS MESSAGES!!!!
         var queryArgs = [];
         dbConnection.query(queryString, queryArgs, function (err, results) {
           // Should have one result:

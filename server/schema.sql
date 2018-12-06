@@ -19,9 +19,9 @@ CREATE TABLE messages (
   msg TEXT,
   created_at DATE,
   messageID INT NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (messageID)
+  PRIMARY KEY (messageID),
   -- FOREIGN KEY (roomID) REFERENCES chatroom(roomID),
-  -- FOREIGN KEY (userID) REFERENCES users(userID)
+  FOREIGN KEY (userID) REFERENCES users(userID)
 );
 
 
@@ -31,6 +31,6 @@ CREATE TABLE messages (
 
 
 /*  Execute this file from the command line by typing:
- *    mysql -u root < server/schema.sql
+ *    mysql -u student < server/schema.sql
  *  to create the database and the tables.*/
 

@@ -5,29 +5,37 @@ var dbConnection = require('../db/index.js')
 
 module.exports = {
   messages: {
-    get: function (req, res) { 
-      dbConnection.query('SELECT * FROM messages', function(error, rows, fields) {
-        //console.log('rows', rows[0].msg);
+    get: function (req, res) {
+      dbConnection.query('SELECT * FROM messages', function (error, rows, fields) {
         if (error) {
-          console.log('error:', error);
+          console.log('error getting messages from db');
         } else {
           res.end(JSON.stringify(rows))
-          //res(null, null, rows);
         }
       })
-    }, // a function which handles a get request for all messages
-    
+    },
+
     post: function messagePostFn(req, res) {
+      let username = req.body.username;
       let msg = req.body.message;
       let created_at = '1988-09-22' //new Date();
-      let queryString = `INSERT INTO messages (roomID, userID, msg, created_at) VALUES (0, 0, "${msg}", "${created_at}");`
-      console.log(queryString);
-      dbConnection.query(queryString, function messagePostDbCB(err, result) {
-        if (err) {
-          console.log('db connection error');
+
+      let queryString = `SELECT userID FROM users WHERE username = "${username}";`
+      dbConnection.query(queryString, function (error, row, field) {
+        if (error) {
+          console.log('error in trying to recieve user Id')
         } else {
-          console.log('POST request seved to db, kinda')
-          res.end();
+          let userID = row[0].userID;
+          queryString = `INSERT INTO messages (roomID, userID, msg, created_at) VALUES (0, ${userID}, "${msg}", "${created_at}");`
+          console.log('queryString', queryString)
+          dbConnection.query(queryString, function messagePostDbCB(err, result) {
+            if (err) {
+              console.log('error with message post request');
+            } else {
+              console.log('message post request successful')
+              res.end();
+            }
+          })
         }
       })
     }
@@ -65,7 +73,7 @@ module.exports = {
             }
           })
         } else {
-          console.log('name already exists')
+          console.log('name already exists during user POST request')
           res.end();
         }
       })
