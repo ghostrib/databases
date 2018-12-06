@@ -8,42 +8,42 @@ var expect = require('chai').expect;
 describe('Persistent Node Chat Server', function () {
   var dbConnection;
 
-  beforeEach(function (done) {
-    dbConnection = mysql.createConnection({
-      user: 'student',
-      password: 'student',
-      database: 'chat'
-    });
-    dbConnection.connect(function (error) {
-      if (error) {
-        console.log('error connecting to db', error);
-      } else {
-        console.log('success connected to db');
-      }
-    });
+  // beforeEach(function (done) {
+  //   dbConnection = mysql.createConnection({
+  //     user: 'student',
+  //     password: 'student',
+  //     database: 'chat'
+  //   });
+  //   dbConnection.connect(function (error) {
+  //     if (error) {
+  //       console.log('error connecting to db', error);
+  //     } else {
+  //       console.log('success connected to db');
+  //     }
+  //   });
 
-    // dbConnection.query('SET FOREIGN_KEY_CHECKS = 0;');
-    var tablename = ['users', 'chatroom', 'messages']; // TODO: fill this out
-    var fn = function (done) {
-      tablename.forEach(function (table) {
-        dbConnection.query('truncate ' + table, function (err, result) {
-          if (err) {
-            console.log('error clearing db', err)
-          } else {
-            if (table === 'messages') {
-              console.log('successfully cleared db');
-              done();
-            }
-          }
-        });
-      });
-    }
-    fn(done)
-    // dbConnection.query('SET FOREIGN_KEY_CHECKS = 1;', done);
-    /* Empty the db table before each test so that multiple tests
-     * (or repeated runs of the tests) won't screw each other up: */
-    //dbConnection.query('truncate ' + tablename, done);
-  });
+  //   // dbConnection.query('SET FOREIGN_KEY_CHECKS = 0;');
+  //   var tablename = ['users', 'chatroom', 'messages']; // TODO: fill this out
+  //   var fn = function (done) {
+  //     tablename.forEach(function (table) {
+  //       dbConnection.query('truncate ' + table, function (err, result) {
+  //         if (err) {
+  //           console.log('error clearing db', err)
+  //         } else {
+  //           if (table === 'messages') {
+  //             console.log('successfully cleared db');
+  //             done();
+  //           }
+  //         }
+  //       });
+  //     });
+  //   }
+  //   fn(done)
+  //   // dbConnection.query('SET FOREIGN_KEY_CHECKS = 1;', done);
+  //   /* Empty the db table before each test so that multiple tests
+  //    * (or repeated runs of the tests) won't screw each other up: */
+  //   //dbConnection.query('truncate ' + tablename, done);
+  // });
 
   afterEach(function () {
     dbConnection.end();
@@ -63,7 +63,7 @@ describe('Persistent Node Chat Server', function () {
         uri: 'http://127.0.0.1:3000/classes/messages',
         json: {
           username: 'Valjean',
-          message: 'In mercy\'s name, three days is all I need.',
+          message: 'In mercys name, three days is all I need.', //deleted escaped qote
           roomname: 'Hello'
         }
       }, function () {
