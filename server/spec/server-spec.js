@@ -22,6 +22,7 @@ describe('Persistent Node Chat Server', function () {
       }
     });
 
+
     dbConnection.query('SET FOREIGN_KEY_CHECKS = 0;', function (error, results) {
       var tablename = ['users', 'chatroom', 'messages']; // TODO: fill this out
       tablename.forEach(function (table) {
@@ -37,11 +38,8 @@ describe('Persistent Node Chat Server', function () {
           }
         });
       });
-
-      /* Empty the db table before each test so that multiple tests
-       * (or repeated runs of the tests) won't screw each other up: */
-      //dbConnection.query('truncate ' + tablename, done);
     });
+
   });
 
   afterEach(function () {
@@ -55,33 +53,40 @@ describe('Persistent Node Chat Server', function () {
       uri: 'http://127.0.0.1:3000/classes/users',
       json: { username: 'Valjean' }
     }, function () {
-      console.log('Inside message POST request')
-      // Post a message to the node chat server:
+
       request({
         method: 'POST',
-        uri: 'http://127.0.0.1:3000/classes/messages',
-        json: {
-          username: 'Valjean',
-          message: 'In mercy\'s name, three days is all I need.', //deleted escaped qote
-          roomname: 'Hello'
-        }
+        uri: 'http://127.0.0.1:3000/classes/users',
+        json: { username: 'Valjean' }
       }, function () {
-        console.log('POST requests complete, checking db for data')
-        // Now if we look in the database, we should find the
-        // posted message there.
+        console.log('Inside message POST request')
+        // Post a message to the node chat server:
+        request({
+          method: 'POST',
+          uri: 'http://127.0.0.1:3000/classes/messages',
+          json: {
+            username: 'Valjean',
+            message: 'In mercy\'s name, three days is all I need.', //deleted escaped qote
+            roomname: 'Hello'
+          }
+        }, function () {
+          console.log('POST requests complete, checking db for data')
+          // Now if we look in the database, we should find the
+          // posted message there.
 
-        // TODO: You might have to change this test to get all the data from
-        // your message table, since this is schema-dependent.
-        var queryString = 'SELECT * FROM mesages';  // WAS MESSAGES!!!!
-        var queryArgs = [];
-        dbConnection.query(queryString, queryArgs, function (err, results) {
-          // Should have one result:
-          console.log('test query result: ', results)
-          expect(results.length).to.equal(1);
+          // TODO: You might have to change this test to get all the data from
+          // your message table, since this is schema-dependent.
+          var queryString = 'SELECT * FROM messages';  // WAS MESSAGES!!!!
+          var queryArgs = [];
+          dbConnection.query(queryString, queryArgs, function (err, results) {
+            // Should have one result:
+            console.log('test query result: ', results)
+            expect(results.length).to.equal(1);
 
-          // TODO: If you don't have a column named text, change this test.
-          expect(results[0].msg).to.equal('In mercy\'s name, three days is all I need.'); //removed escaped quote
-          done();
+            // TODO: If you don't have a column named text, change this test.
+            expect(results[0].msg).to.equal('In mercy\'s name, three days is all I need.'); //removed escaped quote
+            done();
+          });
         });
       });
     });
@@ -92,24 +97,30 @@ describe('Persistent Node Chat Server', function () {
     let created_at = '1988-09-22'; //new Date();
     let msg = 'This is a drill, this is only a drill';
     var queryString = `INSERT INTO messages (roomID, userID, msg, created_at) 
-                      VALUES (0, 0, "${msg}", "${created_at}");`
+                      VALUES (1, 1, "${msg}", "${created_at}");`
+    request({
+      method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Valjean',
+        message: msg,
+        roomname: 'Hello'
+      }
+    }, function () {
+      var queryArgs = [];
 
-    var queryArgs = [];
-    // TODO - The exact query string and query args to use
-    // here depend on the schema you design, so I'll leave
-    // them up to you. */
+      dbConnection.query(queryString, queryArgs, function (err) {
+        if (err) { throw err; }
 
-    dbConnection.query(queryString, queryArgs, function (err) {
-      if (err) { throw err; }
-
-      // Now query the Node chat server and see if it returns
-      // the message we just inserted:
-      request('http://127.0.0.1:3000/classes/messages', function (error, response, body) {
-        console.log('body', body)
-        var messageLog = JSON.parse(body);
-        expect(messageLog[0].msg).to.equal('This is a drill, this is only a drill');
-        expect(messageLog[0].roomname).to.equal('main');
-        done();
+        // Now query the Node chat server and see if it returns
+        // the message we just inserted:
+        request('http://127.0.0.1:3000/classes/messages', function (error, response, body) {
+          console.log('body', body)
+          var messageLog = JSON.parse(body);
+          expect(messageLog[0].msg).to.equal('This is a drill, this is only a drill');
+          expect(messageLog[0].roomname).to.equal('Hello');
+          done();
+        });
       });
     });
   });

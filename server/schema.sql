@@ -3,14 +3,16 @@ USE chat;
 
 CREATE TABLE users (
   userID INT NOT NULL AUTO_INCREMENT,
-  username TEXT,
-  PRIMARY KEY ( userID )
+  username VARCHAR(10),
+  PRIMARY KEY ( userID ),
+  UNIQUE INDEX (username)
 );
 
 CREATE TABLE chatroom   (
   roomID INT NOT NULL AUTO_INCREMENT,
-  room TEXT,
-  PRIMARY KEY ( roomID )
+  room VARCHAR(10),
+  PRIMARY KEY ( roomID ),
+  UNIQUE INDEX (room)
 );
 
 CREATE TABLE messages (
@@ -20,7 +22,7 @@ CREATE TABLE messages (
   created_at DATE,
   messageID INT NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (messageID),
-  -- FOREIGN KEY (roomID) REFERENCES chatroom(roomID),
+  FOREIGN KEY (roomID) REFERENCES chatroom(roomID),
   FOREIGN KEY (userID) REFERENCES users(userID)
 );
 

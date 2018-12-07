@@ -10,6 +10,9 @@ router.get('/users', controller.users.get);
 
 router.post('/users', controller.users.post);
 
+router.get('/chatrooms', controller.chatrooms.get);
+
+router.post('/chatrooms', controller.chatrooms.post);
 
 module.exports = router;
 
